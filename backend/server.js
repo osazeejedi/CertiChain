@@ -1,22 +1,27 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const certificateRoutes = require('./backend/routes/certificates');
+const sequelize = require('./config/database');
+const certificateRoutes = require('./routes/certificates');
 
-dotenv.config();
+dotenv.config({ path: '../.env' });
 
 const app = express();
 
 // Middleware
 app.use(express.json());
 
+// Test the database connection
+sequelize.authenticate()
+  .then(() => console.log('Connected to PostgreSQL'))
+  .catch(err => console.error('Could not connect to PostgreSQL', err));
+
 // Routes
 app.use('/api/certificates', certificateRoutes);
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('Could not connect to MongoDB', err));
+// Sync database
+sequelize.sync({ force: true })
+  .then(() => console.log('Database tables created'))
+  .catch(err => console.error('Error creating database tables:', err));
 
 // Start server
 const PORT = process.env.PORT || 5000;

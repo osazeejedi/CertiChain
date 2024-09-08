@@ -8,8 +8,10 @@ const ethers = require('ethers');
 const router = express.Router();
 
 // Initialize Lit client
-const litClient = new LitJsSdk.LitNodeClient();
-litClient.connect();
+const litClient = new LitJsSdk.LitNodeClient({
+  litNetwork: "serrano" //  "serrano" for testnet, "habanero" for mainnet
+});
+const connectPromise = litClient.connect();
 
 // Middleware to verify JWT (implement this)
 const verifyToken = (req, res, next) => {
@@ -18,6 +20,7 @@ const verifyToken = (req, res, next) => {
 
 // Issue certificate
 router.post('/issue', verifyToken, async (req, res) => {
+  await connectPromise;
   try {
     const { recipientName, recipientEmail } = req.body;
     
@@ -52,15 +55,14 @@ router.post('/issue', verifyToken, async (req, res) => {
       chain: 'ethereum',
     });
 
-    const certificate = new Certificate({
+    const certificate = await Certificate.create({
       recipientName,
       recipientEmail,
       encryptedData: ciphertext,
       encryptedSymmetricKey: LitJsSdk.uint8arrayToString(encryptedSymmetricKey, 'base16')
     });
     
-    await certificate.save();
-    res.status(201).json({ message: 'Certificate issued successfully', certificateId: certificate._id });
+    res.status(201).json({ message: 'Certificate issued successfully', certificateId: certificate.id });
   } catch (error) {
     console.error('Certificate issuance failed:', error);
     res.status(500).json({ error: 'Certificate issuance failed' });
@@ -69,8 +71,9 @@ router.post('/issue', verifyToken, async (req, res) => {
 
 // Verify certificate
 router.get('/verify/:id', async (req, res) => {
+  await connectPromise;
   try {
-    const certificate = await Certificate.findById(req.params.id);
+    const certificate = await Certificate.findByPk(req.params.id);
     if (!certificate) return res.status(404).json({ error: 'Certificate not found' });
     
     const authSig = await LitJsSdk.checkAndSignAuthMessage({ chain: 'ethereum' });

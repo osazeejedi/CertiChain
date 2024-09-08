@@ -1,10 +1,23 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
 
-const certificateSchema = new mongoose.Schema({
-  recipientName: { type: String, required: true },
-  recipientEmail: { type: String, required: true },
-  encryptedData: { type: String, required: true },
-  encryptedSymmetricKey: { type: String, required: true },
+const Certificate = sequelize.define('Certificate', {
+  recipientName: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  recipientEmail: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  encryptedData: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  encryptedSymmetricKey: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
 });
 
-module.exports = mongoose.model('Certificate', certificateSchema);
+module.exports = Certificate;

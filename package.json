@@ -1,0 +1,18 @@
+{
+  "name": "certilock",
+  "version": "1.0.0",
+  "description": "A platform for secured certificate issuing and verification using the blockchain",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@lit-protocol/lit-node-client": "^6.4.10",
+    "body-parser": "^1.20.2",
+    "crypto": "^1.0.1",
+    "express": "^4.19.2"
+  }
+}
